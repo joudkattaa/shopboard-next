@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { products } from "@/features/catalog/catalog";
-import { productById } from "@/features/catalog/products.logic";
+import { readProducts, readProduct } from "@/features/catalog/products.server";
 import ProductDetails from "@/features/catalog/ProductDetails";
 
 type Props = { params: Promise<{ id: string }> };
@@ -10,20 +9,21 @@ type Props = { params: Promise<{ id: string }> };
 // This phase serves the fixed source catalog; other IDs use the shared 404.
 export const dynamicParams = false;
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const products = await readProducts();
   return products.map(({ id }) => ({ id }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const product = productById(id, products);
+  const product = await readProduct(id);
   if (!product) return { title: "Product not found" };
   return { title: product.name, description: product.description };
 }
 
 export default async function ProductDetailsPage({ params }: Props) {
   const { id } = await params;
-  const product = productById(id, products);
+  const product = await readProduct(id);
   if (!product) notFound();
   return (
     <div className="space-y-8">

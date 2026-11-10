@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { products } from "@/features/catalog/catalog";
+import { readProducts } from "@/features/catalog/products.server";
 import ProductGrid from "@/features/catalog/ProductGrid";
 
 export const metadata: Metadata = { title: "Shop ROSEVEIL" };
 
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  const products = await readProducts();
   return (
     <section aria-labelledby="collection-title" className="space-y-8">
       <h1 id="collection-title" className="text-4xl">Shop ROSEVEIL</h1>
