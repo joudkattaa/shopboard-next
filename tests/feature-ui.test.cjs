@@ -27,21 +27,12 @@ test('bag provider server render never reads browser storage and exposes hydrati
  const html=renderToStaticMarkup(React.createElement(BagProvider,{products},React.createElement(Probe)));assert(html.includes('&quot;ready&quot;:false'));assert(html.includes('&quot;count&quot;:0'));
 });
 
-test('header category navigation updates the real shared discovery state and listing controls',()=>{
- let slots=[],cursor=0;
- const providerLoad=loader({react:{...React,useState:initial=>{const i=cursor++;if(!(i in slots))slots[i]=initial;return [slots[i],value=>{slots[i]=typeof value==='function'?value(slots[i]):value}];}}});
- const Provider=providerLoad('features/catalog/DiscoveryProvider.tsx').DiscoveryProvider;
- function context(){cursor=0;return Provider({children:null}).props.value;}
- let shared=context();shared.setFilters({query:'rose',category:'All',sort:'price-desc',featured:false});shared=context();
- const hooks={...React,useRef:()=>({current:null}),useState:()=>[false,()=>{}],useEffect(){}};
- const load=loader({react:hooks,'next/navigation':{usePathname:()=>'/products'},'@/features/catalog/DiscoveryProvider':{useDiscovery:()=>shared},'@/features/cart/BagProvider':{useBag:()=>({ready:true,store:{add(){}}})}});
- const Nav=load('components/layout/HeaderNavigation.tsx').default;
- find(Nav({logo:null,actions:null}),e=>e.props?.children==='SKIN CARE').props.onClick();shared=context();
- assert.equal(shared.filters.category,'Skin Care');assert.equal(shared.filters.query,'rose');assert.equal(shared.filters.sort,'price-desc');
- const {products}=load('features/catalog/catalog.ts');const Discovery=load('features/catalog/ProductDiscovery.tsx').default;
- const controls=find(Discovery({products}),e=>e.type?.name==='CatalogControls');assert.equal(controls.props.filters,shared.filters);
- const html=renderToStaticMarkup(React.createElement(Discovery,{products}));assert(html.includes('value="Skin Care" selected'));assert(html.includes('value="price-desc" selected'));
- find(Nav({logo:null,actions:null}),e=>e.props?.children==='SHOP').props.onClick();shared=context();assert.deepEqual(shared.filters,{query:'',category:'All',sort:'default',featured:false});
+test('header category navigation exposes shareable category links without mutating current filters',()=>{
+ const filters={query:'rose',category:'All',sort:'price-desc',featured:false};
+ const local=loader({react:{...React,useRef:()=>({current:null}),useState:()=>[false,()=>{}],useEffect(){}},'next/navigation':{usePathname:()=>'/products'},'@/features/catalog/DiscoveryProvider':{useDiscovery:()=>({filters,reset(){}})}});
+ const Nav=local('components/layout/HeaderNavigation.tsx').default;
+ const skin=find(Nav({logo:null,actions:null}),e=>e.props?.children==='SKIN CARE');assert.equal(skin.props.href,'/products?category=Skin+Care');skin.props.onClick();assert.equal(filters.query,'rose');assert.equal(filters.category,'All');
+ assert.equal(find(Nav({logo:null,actions:null}),e=>e.props?.children==='SHOP').props.href,'/products');
 });
 
 test('card/detail add actions update the header count, bag quantities, removal and empty state',()=>{
@@ -59,13 +50,10 @@ test('card/detail add actions update the header count, bag quantities, removal a
  assert.equal(find(Actions(),e=>e.props?.href==='/bag').props['aria-label'],'Open shopping bag, 0 items');assert(renderToStaticMarkup(React.createElement(Bag)).includes('Your shopping bag is empty.'));
 });
 
-test('Home and Shop keep independent filters and Home category navigation stays local',()=>{
- let slots=[],cursor=0,context,route='/products';
- const react={...React,useState:initial=>{const i=cursor++;if(!(i in slots))slots[i]=typeof initial==='function'?initial():initial;return [slots[i],value=>{slots[i]=typeof value==='function'?value(slots[i]):value}]},useContext:()=>context};
- const local=loader({react,'next/navigation':{usePathname:()=>route}});const {DiscoveryProvider,useDiscovery}=local('features/catalog/DiscoveryProvider.tsx');const refresh=()=>{cursor=0;context=DiscoveryProvider({children:null}).props.value};refresh();useDiscovery().setFilters({query:'serum',category:'All',sort:'price-asc',featured:false});refresh();route='/';assert.equal(useDiscovery().filters.featured,true);
- let focused=0;const navLoad=loader({react:{...React,useState:()=>[false,()=>{}],useRef:()=>({current:null}),useEffect(){}},'next/navigation':{usePathname:()=>route},'@/features/catalog/DiscoveryProvider':{useDiscovery,focusCollection:()=>{focused++}}});const Nav=navLoad('components/layout/HeaderNavigation.tsx').default;
- const category=find(Nav({logo:null,actions:null}),e=>e.props?.children==='SKIN CARE');assert.equal(category.type,'button');category.props.onClick();refresh();assert.equal(useDiscovery().filters.category,'Skin Care');assert.equal(focused,1);assert.equal(route,'/');
- route='/products';assert.equal(useDiscovery().filters.query,'serum');assert.equal(useDiscovery().filters.sort,'price-asc');assert.equal(useDiscovery().filters.category,'All');
+test('Home category navigation links to Shop without changing Home filters',()=>{
+ let context;const react={...React,useState:initial=>[initial,()=>{}],useContext:()=>context,useRef:()=>({current:null}),useEffect(){}};
+ const local=loader({react,'next/navigation':{usePathname:()=>'/'}});context=local('features/catalog/DiscoveryProvider.tsx').DiscoveryProvider({children:null}).props.value;
+ const Nav=local('components/layout/HeaderNavigation.tsx').default;const link=find(Nav({logo:null,actions:null}),e=>e.props?.children==='SKIN CARE');assert.equal(link.props.href,'/products?category=Skin+Care');link.props.onClick();assert.equal(context.homeFilters.category,'All');assert.equal(context.homeFilters.featured,true);
 });
 
 test('catalog error/empty/loading feedback differs from no-match and wires retry',()=>{
@@ -114,16 +102,20 @@ test('visible shared toast restarts its timer and announcement key for identical
  try{context.store.notify('Same message');effects=[];const first=Feedback();const [effect,deps]=effects[0];const cleanup=effect();assert(first.props.className.includes('fixed'));context.store.notify('Same message');effects=[];const second=Feedback();assert.notEqual(first.props.children.key,second.props.children.key);assert.notEqual(deps[1],effects[0][1][1]);cleanup();effects[0][0]();assert.equal(scheduled,2);assert.equal(cleared,1);callback();assert.equal(context.store.getSnapshot().message,'')}finally{global.setTimeout=oldSet;global.clearTimeout=oldClear}
 });
 
-test('Makeup collection tab filters canonical products and synchronizes Home controls and Shop navigation',()=>{
- let slots=[],cursor=0,context,route='/';
- const react={...React,useState:initial=>{const i=cursor++;if(!(i in slots))slots[i]=typeof initial==='function'?initial():initial;return[slots[i],value=>{slots[i]=typeof value==='function'?value(slots[i]):value}]},useContext:()=>context,useRef:()=>({current:null}),useEffect(){}};
- const local=loader({react,'next/navigation':{usePathname:()=>route},'@/features/cart/BagProvider':{useBag:()=>({ready:true,store:{add(){}}})}});
- const {DiscoveryProvider}=local('features/catalog/DiscoveryProvider.tsx');const Discovery=local('features/catalog/ProductDiscovery.tsx').default;const Controls=local('features/catalog/CatalogControls.tsx').default;const Grid=local('features/catalog/ProductGrid.tsx').default;const Nav=local('components/layout/HeaderNavigation.tsx').default;const {products}=local('features/catalog/catalog.ts');
- function refresh(){cursor=0;context=DiscoveryProvider({children:null}).props.value}function discovery(){cursor=3;return Discovery({products})}refresh();
- const nav=find(discovery(),e=>e.props?.['aria-label']==='Beauty collections');assert.deepEqual(React.Children.toArray(nav.props.children).map(e=>e.props.children),['All Beauty','Body Care','Skin Care','Makeup','Hair Care','Gift Sets']);
- find(nav,e=>e.type==='button'&&e.props.children==='Makeup').props.onClick();refresh();let tree=discovery();assert.equal(find(tree,e=>e.props?.children==='Makeup'&&e.type==='button').props['aria-current'],'true');
- const expected=products.filter(product=>product.category==='Makeup');assert(expected.length>0);assert.deepEqual(find(tree,e=>e.type===Grid).props.products,expected);assert.equal(find(tree,e=>e.type===Controls).props.filters.category,'Makeup');assert.equal(find(tree,e=>e.type===Controls).props.filters.featured,false);
- const controls=find(tree,e=>e.type===Controls);find(Controls(controls.props),e=>e.props?.id==='category-select').props.onChange({target:{value:'Skin Care'}});refresh();assert.equal(find(discovery(),e=>e.type==='button'&&e.props.children==='Skin Care').props['aria-current'],'true');
- route='/products';find(Nav({logo:null,actions:null}),e=>e.props?.children==='MAKEUP').props.onClick();refresh();tree=discovery();assert.deepEqual(find(tree,e=>e.type===Grid).props.products,expected);assert.equal(find(tree,e=>e.type===Controls).props.filters.category,'Makeup');
- route='/';assert.equal(find(discovery(),e=>e.type===Controls).props.filters.category,'Skin Care');
+test('Home collection links reset Shop and Makeup URLs filter products, controls and history together',()=>{
+ let context,route='/',search='';const history=[''];let index=0;
+ const react={...React,useState:initial=>[initial,()=>{}],useContext:()=>context,useRef:()=>({current:null}),useEffect(){}};
+ const local=loader({react,'next/navigation':{usePathname:()=>route,useSearchParams:()=>new URLSearchParams(search)},'@/features/cart/BagProvider':{useBag:()=>({ready:true,store:{add(){}}})}});
+ const {DiscoveryProvider,ShopDiscoveryProvider}=local('features/catalog/DiscoveryProvider.tsx');const parent=DiscoveryProvider({children:null}).props.value;context=parent;
+ const Discovery=local('features/catalog/ProductDiscovery.tsx').default,Controls=local('features/catalog/CatalogControls.tsx').default,Grid=local('features/catalog/ProductGrid.tsx').default;const {products}=local('features/catalog/catalog.ts');
+ const home=Discovery({products,home:true});const nav=find(home,e=>e.props?.['aria-label']==='Beauty collections');assert.deepEqual(React.Children.toArray(nav.props.children).map(e=>e.props.children),['All Beauty','Body Care','Skin Care','Makeup','Hair Care','Gift Sets']);
+ assert.equal(find(home,e=>e.props?.href==='/products'&&Array.isArray(e.props.children)).props.href,'/products');assert.equal(find(nav,e=>e.props?.children==='All Beauty').props.href,'/products');const makeup=find(nav,e=>e.props?.children==='Makeup');assert.equal(makeup.props.href,'/products?category=Makeup');
+ const old=global.window;global.window={location:{pathname:'/products',get href(){return 'http://localhost/products'+search},get search(){return search}},history:{pushState(_state,_title,href){search=new URL(href,'http://localhost').search;history.splice(++index);history.push(search)}}};
+ function render(){context=parent;context=ShopDiscoveryProvider({children:null}).props.value;return Discovery({products})}
+ try{route='/products';search=new URL(makeup.props.href,'http://localhost').search;history[0]=search;let tree=render();const expected=products.filter(p=>p.category==='Makeup');assert(expected.length);assert.deepEqual(find(tree,e=>e.type===Grid).props.products,expected);assert.equal(find(tree,e=>e.type===Controls).props.filters.category,'Makeup');assert(renderToStaticMarkup(React.createElement(Discovery,{products})).includes('1 product'));
+ let control=find(tree,e=>e.type===Controls);find(Controls(control.props),e=>e.props?.id==='price-sort').props.onChange({target:{value:'price-desc'}});tree=render();control=find(tree,e=>e.type===Controls);const Search=local('features/catalog/SearchField.tsx').default;find(Controls(control.props),e=>e.type===Search).props.onChange('EVERYDAY');tree=render();assert.deepEqual(find(tree,e=>e.type===Grid).props.products,expected);assert(search.includes('q=EVERYDAY'));assert(search.includes('sort=price-desc'));
+ const saved=search;tree=render();assert.equal(find(tree,e=>e.type===Controls).props.filters.query,'EVERYDAY');search=history[--index];assert.equal(find(render(),e=>e.type===Controls).props.filters.query,'');search=history[++index];assert.equal(search,saved);assert.equal(find(render(),e=>e.type===Controls).props.filters.query,'EVERYDAY');
+ find(render(),e=>e.type==='button'&&typeof e.props.children==='string'&&e.props.children.startsWith('Clear Filters')).props.onClick();tree=render();assert.equal(search,'');assert.deepEqual(find(tree,e=>e.type===Grid).props.products,products);
+ search='?category=not-real&sort=invalid';assert.equal(find(render(),e=>e.type===Controls).props.filters.category,'All');assert.equal(find(render(),e=>e.type===Controls).props.filters.sort,'default');
+ }finally{global.window=old}
 });

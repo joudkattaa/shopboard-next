@@ -30,3 +30,15 @@ test('original branded favicon and optimized responsive product images are serve
  const listing=await(await fetch(base+'/products')).text();assert(listing.includes('srcSet="/_next/image'));assert(listing.includes('sizes="(min-width: 1330px)'));
  const image=await fetch(base+'/_next/image?url=%2Froseveil%2Fbody-lotion.webp&w=640&q=75');assert.equal(image.status,200);assert(image.headers.get('content-type').startsWith('image/'));assert((await image.arrayBuffer()).byteLength>0);
 });
+
+test('Shop query URLs server-render category counts and combined controls on direct requests and refresh',async()=>{
+ const catalog=await(await fetch(base+'/api/products')).json();
+ const home=await(await fetch(base+'/')).text();assert(home.includes('href="/products?category=Makeup"'));
+ for(const category of ['Body Care','Skin Care','Makeup','Hair Care','Gift Sets','Fragrance','Face Masks']){
+  const url=base+'/products?category='+encodeURIComponent(category);const expected=catalog.items.filter(p=>p.category===category);
+  for(let refresh=0;refresh<2;refresh++){const response=await fetch(url);assert.equal(response.status,200);const html=await response.text();assert.equal((html.match(/<article aria-label=/g)||[]).length,expected.length,category);for(const product of expected)assert(html.includes('aria-label="'+product.name+'"'));assert(html.includes('value="'+category+'" selected'))}
+ }
+ const combined=await(await fetch(base+'/products?category=Makeup&q=EVERYDAY&sort=price-desc')).text();assert.equal((combined.match(/<article aria-label=/g)||[]).length,1);assert(combined.includes('value="price-desc" selected'));assert(combined.includes('value="EVERYDAY"'));assert(combined.includes('Clear Filters'));
+ const empty=await(await fetch(base+'/products?category=Makeup&q=no-such-product')).text();assert.equal((empty.match(/<article aria-label=/g)||[]).length,0);assert(empty.includes('A little change of search?'));
+ const reset=await(await fetch(base+'/products')).text();assert.equal((reset.match(/<article aria-label=/g)||[]).length,30);
+});

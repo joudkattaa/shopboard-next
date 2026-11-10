@@ -23,7 +23,7 @@
 
 ## Discovery and shopping bag ownership
 
-- `DiscoveryProvider` owns separate Home and Shop search/category/sort/featured scopes. Header navigation, header search, and `ProductDiscovery` consume it. Use `HomeLink` for a reset Home entry and `ShopLink` for an unfiltered Shop entry; preserve existing filters for Continue shopping. Discovery stays in memory across client navigation, matching the source; it is not persisted or encoded into URLs.
+- `DiscoveryProvider` owns Home filters and shared search visibility. ShopDiscoveryProvider reads Shop filters from the URL (category, q, sort, featured); native History API updates integrate with Next.js useSearchParams for immediate controls and Back/Forward. Do not add a second Shop filter store. Home collection/category links navigate to Shop, and /products without parameters always means the complete unfiltered catalog. Reuse discovery-url helpers and existing validation/filtering.
 - `BagProvider` and `createBagStore` own bag state. Do not create parallel cart state. Reuse pure `normalizeCart`/`cartTotals` and `findProducts`. Catalog data comes from server readers and is passed as serializable props; do not import the server catalog into client code or add another fetch transport.
 - Bag storage uses `roseveil-shopping-bag-v1`, with `lumiere-shopping-bag-v1` read fallback. Persist IDs/quantities and the canonical promo only, never prices. Keep SSR snapshots empty and load storage after hydration; never save before hydration. Checkout is demo-only; account remains unavailable because the source has no account flow. ThemeToggle owns roseveil-theme persistence; never add a competing theme provider.
 
