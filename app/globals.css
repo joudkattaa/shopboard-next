@@ -93,6 +93,10 @@
   --product-detail-gradient-end: #efe4dc;
   --product-card-shadow: 0 1px 3px #36242d08, 0 8px 24px #36242d06;
   --product-card-hover-shadow: 0 4px 8px #36242d0a, 0 12px 28px #36242d14;
+  /* Original modal overlay and elevation. */
+  --dialog-backdrop: #26172099;
+  --dialog-backdrop-dark: #100307cc;
+  --dialog-shadow: 0 20px 100px #36242d33;
   --rose: #a95570;
   --rose-dark: #88485f;
   --pink: #fff1f5;
