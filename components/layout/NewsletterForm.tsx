@@ -11,8 +11,8 @@ export default function NewsletterForm() {
   return (
     <form id="newsletter" aria-labelledby="newsletter-title" onSubmit={submit} className="grid w-full grid-cols-1 gap-[18px] min-[1000px]:grid-cols-2 min-[1000px]:gap-8">
       <div>
-        <p className="text-[9px] tracking-[2px] text-[var(--rose-dark)] dark:text-primary">LET YOUR EVERYDAY BLOOM</p>
-        <h2 id="newsletter-title" className="mb-2.5 mt-2 text-balance text-[clamp(26px,3vw,32px)] font-normal leading-[1.05] tracking-[-0.6px]">A little beauty, <em className="text-[var(--rose-dark)] dark:text-primary">in your inbox.</em></h2>
+        <p className="text-[9px] tracking-[2px] text-[var(--rose-dark)]">LET YOUR EVERYDAY BLOOM</p>
+        <h2 id="newsletter-title" className="mb-2.5 mt-2 text-balance text-[clamp(26px,3vw,32px)] font-normal leading-[1.05] tracking-[-0.6px]">A little beauty, <em className="text-[var(--rose-dark)]">in your inbox.</em></h2>
         <p className="max-w-[340px] text-xs leading-[1.8] text-muted-foreground">New rituals, thoughtful notes, and a little Roseveil inspiration.</p>
       </div>
       <div className="min-w-0 self-center">

@@ -214,11 +214,14 @@
   :is(h1, h2, h3, h4, h5, h6) { @apply font-heading; }
   h2 { font-size: 32px; font-weight: 500; line-height: 1.1; letter-spacing: -0.4px; }
   :is(button, a) { touch-action: manipulation; }
+  /* Source responsive guards: allow grid/flex children and text to shrink/wrap. */
+  :is(main, section, article, nav, form) { min-width: 0; }
+  :is(h1, h2, h3, p, button, a, small) { overflow-wrap: anywhere; }
 }
 
 /* Unlayered so component outline-none utilities cannot hide keyboard focus. */
 :focus-visible {
-  outline: 2px solid var(--ring);
+  outline: 2px solid var(--focus-ring, var(--ring));
   outline-offset: 4px;
 }
 

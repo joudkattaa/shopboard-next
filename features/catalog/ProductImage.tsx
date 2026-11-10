@@ -8,7 +8,7 @@ type Props = { product: Readonly<Product>; variant?: "card" | "detail"; classNam
 export default function ProductImage({ product, variant = "card", className = "" }: Props) {
   const [failedImage, setFailedImage] = useState<string | null>(null);
   if (failedImage === product.image) {
-    return <span role="img" aria-label={product.name + ": image unavailable"} className={"grid aspect-square h-full w-full place-items-center p-3 text-center text-xs " + className}>Image unavailable</span>;
+    return <span role="img" aria-label={product.name + ": image unavailable"} className={"grid aspect-square h-full w-full place-items-center p-3 text-center text-xs dark:bg-background dark:text-foreground " + className}>Image unavailable</span>;
   }
   return <Image src={"/roseveil/" + product.image + ".webp"} alt={product.name} width={1254} height={1254}
     sizes={variant === "card"

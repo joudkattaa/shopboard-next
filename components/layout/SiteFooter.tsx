@@ -11,7 +11,7 @@ export default function SiteFooter() {
     <footer id="contact" className="border-t border-border bg-linear-[120deg,var(--footer-gradient-start),var(--footer-gradient-end)] text-foreground dark:bg-none dark:bg-card">
       <div className={container + " border-b border-border py-6"}><NewsletterForm /></div>
       <p id="footer-unavailable" className="sr-only">About Us, shopping bag, journal, policies and contact features are unavailable during this migration stage.</p>
-      <div className={container + " grid grid-cols-2 gap-6 py-9 min-[600px]:grid-cols-3 min-[1000px]:grid-cols-[1.4fr_1fr_1fr_1.2fr] min-[1000px]:gap-7 min-[1000px]:py-7"}>
+      <div className={container + " grid grid-cols-2 gap-6 py-9 [&>div]:min-w-0 min-[600px]:grid-cols-3 min-[1000px]:grid-cols-[1.4fr_1fr_1fr_1.2fr] min-[1000px]:gap-7 min-[1000px]:py-7"}>
         <div className="col-span-full min-[1000px]:col-span-1">
           <BrandLogo footer />
           <p className="text-xs leading-[1.7] text-muted-foreground dark:text-foreground">Your everyday moment of beauty.<br />Thoughtfully inspired by nature.</p>
