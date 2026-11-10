@@ -78,6 +78,11 @@
 }
 
 :root {
+  /* Original footer decoration; source layout.css. */
+  --footer-gradient-start: #fff3f7;
+  --footer-gradient-end: #f3e5ec;
+  --footer-divider: #e2cbd5;
+  --footer-placeholder: #80666d;
   --rose: #a95570;
   --rose-dark: #88485f;
   --pink: #fff1f5;

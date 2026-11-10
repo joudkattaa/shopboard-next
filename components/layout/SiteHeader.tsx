@@ -1,17 +1,23 @@
-import Link from "next/link";
+import AnnouncementBar from "@/components/layout/AnnouncementBar";
+import BrandIcon from "@/components/layout/BrandIcon";
+import BrandLogo from "@/components/layout/BrandLogo";
+import HeaderNavigation from "@/components/layout/HeaderNavigation";
 
 export default function SiteHeader() {
-  return (
-    <header className="border-b border-border bg-card">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6">
-        <Link href="/" aria-label="Roseveil Cosmetics home" className="font-heading text-3xl">
-          ROSEVEIL <span className="font-sans text-xs tracking-widest">COSMETICS</span>
-        </Link>
-        <nav aria-label="Main navigation" className="flex gap-6">
-          <Link href="/" className="inline-flex min-h-11 items-center hover:underline">Home</Link>
-          <Link href="/products" className="inline-flex min-h-11 items-center hover:underline">Shop</Link>
-        </nav>
-      </div>
+  return <>
+    <AnnouncementBar />
+    <header className="border-b border-border bg-background dark:bg-card">
+      <HeaderNavigation logo={<BrandLogo />} actions={
+        <div className="order-2 col-span-full flex w-full justify-between gap-3 min-[480px]:w-auto min-[480px]:gap-1 min-[1200px]:shrink-0">
+          {([['moon', 'Dark mode unavailable', true], ['search', 'Search products unavailable', false], ['user', 'Demo account unavailable', false], ['bag', 'Shopping bag unavailable', false]] as const).map(([name, label, bordered]) =>
+            <button key={name} type="button" disabled aria-label={label} aria-describedby="header-unavailable" title={label} className={"relative grid size-11 shrink-0 cursor-not-allowed disabled:opacity-50 place-items-center rounded-full p-2.5 " + (bordered ? "border border-border" : "")}>
+              <BrandIcon name={name} className={name === 'moon' ? 'dark:hidden' : ''} />
+              {name === 'moon' && <BrandIcon name="sun" className="hidden dark:block" />}
+              {name === 'bag' && <span aria-hidden="true" className="absolute right-0 top-0 h-[15px] min-w-[15px] rounded-full bg-primary px-[3px] text-[8px] text-primary-foreground">0</span>}
+            </button>)}
+        </div>
+      } />
+      <p id="header-unavailable" className="sr-only">Category navigation, About Us, Blog, Contact, theme switching, search, account and shopping bag are unavailable during this migration stage.</p>
     </header>
-  );
+  </>;
 }
