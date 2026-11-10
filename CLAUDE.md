@@ -21,3 +21,9 @@
 - Dialog keeps Base UI's default modal behavior, keyboard dismissal, focus trapping, and focus restoration. Its popup scrolls within the viewport; animations respect reduced motion. Verify focus behavior in a real browser for every new dialog workflow.
 - Button, Input, Badge, and Dialog define Client Component boundaries for Base UI behavior. Card remains server-compatible. Keep route data loading in Server Components; put state and event handlers in the smallest consuming Client Component. Pass serializable props across server/client boundaries.
 - Extend typed variants only for recurring UI needs. Prefer semantic tokens and className composition for local layout; all authored CSS remains in app/globals.css. Preserve visible focus and reduced motion. Do not replace working page compositions merely to demonstrate kit usage.
+
+## Discovery and shopping bag ownership
+
+- `DiscoveryProvider` owns the single shared search/category/sort/featured state. Header navigation, header search, and `ProductDiscovery` consume it. Use `ShopLink` for an unfiltered Shop entry; preserve existing filters for Continue shopping. Discovery stays in memory across client navigation, matching the source; it is not persisted or encoded into URLs.
+- `BagProvider` and `createBagStore` own bag state. Do not create parallel cart state. Reuse pure `normalizeCart`/`cartTotals` and `findProducts`. Catalog data comes from server readers and is passed as serializable props; do not import the server catalog into client code or add another fetch transport.
+- Bag storage uses `roseveil-shopping-bag-v1`, with `lumiere-shopping-bag-v1` read fallback. Persist IDs/quantities and the canonical promo only, never prices. Keep SSR snapshots empty and load storage after hydration; never save before hydration. Checkout, account and theme switching remain unavailable.

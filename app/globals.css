@@ -97,6 +97,11 @@
   --dialog-backdrop: #26172099;
   --dialog-backdrop-dark: #100307cc;
   --dialog-shadow: 0 20px 100px #36242d33;
+  /* Original discovery control decoration. */
+  --discovery-input-border: #a86f84;
+  --discovery-control-border: #e6bfce;
+  --discovery-control-bg: #fff1f6;
+  --discovery-control-hover: #f5dfe9;
   --rose: #a95570;
   --rose-dark: #88485f;
   --pink: #fff1f5;

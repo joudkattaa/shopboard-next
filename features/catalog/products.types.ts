@@ -10,3 +10,4 @@ export interface Product {
   image: string
   description: string
 }
+export type SortOrder = 'default' | 'price-asc' | 'price-desc'

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AddToBagButton from "@/features/cart/AddToBagButton";
 import type { Product } from "@/features/catalog/products.types";
 import ProductImage from "@/features/catalog/ProductImage";
 import { formatMoney } from "@/lib/format-money";
@@ -18,9 +19,7 @@ export default function ProductCard({ product }: { product: Readonly<Product> })
           <span className="text-[10px] text-muted-foreground">{product.size}</span>
         </div>
       </div>
-      <button type="button" disabled aria-label={"Add " + product.name + " to bag unavailable"} title="Shopping bag is not available during this migration stage" aria-describedby="product-purchase-unavailable" className="flex min-h-11 w-full cursor-not-allowed items-center justify-center gap-2 rounded-roseveil-30 border border-border bg-secondary px-1 py-2.5 text-[9px] font-semibold tracking-[1px] text-[var(--rose-dark)] disabled:opacity-50 dark:bg-background dark:text-primary">
-        <svg viewBox="0 0 24 24" aria-hidden="true" className="size-3 fill-none stroke-current" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 7h14l1 14H4L5 7Z" /><path d="M9 8V5a3 3 0 0 1 6 0v3" /></svg>ADD TO BAG
-      </button>
+      <AddToBagButton id={product.id} name={product.name} />
     </article>
   );
 }

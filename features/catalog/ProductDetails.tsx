@@ -1,3 +1,5 @@
+import Link from "next/link";
+import AddToBagButton from "@/features/cart/AddToBagButton";
 import type { Product } from "@/features/catalog/products.types";
 import ProductImage from "@/features/catalog/ProductImage";
 import { formatMoney } from "@/lib/format-money";
@@ -18,6 +20,8 @@ export default function ProductDetails({ product }: { product: Readonly<Product>
           <div><dt className="mb-[5px] text-[10px] uppercase tracking-[1px] text-muted-foreground">Size</dt><dd className="text-[13px]">{product.size}</dd></div>
           <div><dt className="mb-[5px] text-[10px] uppercase tracking-[1px] text-muted-foreground">Collection</dt><dd className="text-[13px]">{product.category}</dd></div>
         </dl>
+        <AddToBagButton id={product.id} name={product.name} detail />
+        <Link href="/bag" className="inline-flex min-h-11 items-center text-xs underline underline-offset-4">View shopping bag ?</Link>
         <p className="text-sm text-muted-foreground">Illustrative product. Images and sizes are for this concept store. No real purchase or product claims. No payment, real order or shipping request occurs.</p>
       </div>
     </article>
