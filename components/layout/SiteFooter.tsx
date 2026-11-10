@@ -11,7 +11,7 @@ export default function SiteFooter() {
   return (
     <footer id="contact" className="border-t border-border bg-linear-[120deg,var(--footer-gradient-start),var(--footer-gradient-end)] text-foreground dark:bg-none dark:bg-card">
       <div className={container + " border-b border-border py-6"}><NewsletterForm /></div>
-      <p id="footer-unavailable" className="sr-only">About Us, journal, policies and contact features are unavailable during this migration stage.</p>
+      <p id="footer-unavailable" className="sr-only">Journal, policies and contact features are unavailable during this migration stage.</p>
       <div className={container + " grid grid-cols-2 gap-6 py-9 [&>div]:min-w-0 min-[600px]:grid-cols-3 min-[1000px]:grid-cols-[1.4fr_1fr_1fr_1.2fr] min-[1000px]:gap-7 min-[1000px]:py-7"}>
         <div className="col-span-full min-[1000px]:col-span-1">
           <BrandLogo footer />
@@ -22,8 +22,9 @@ export default function SiteFooter() {
           <h2 className={heading}>EXPLORE ROSEVEIL</h2>
           <Link className={item} href="/">Home</Link>
           <ShopLink className={item}>Shop</ShopLink>
+          <Link className={item} href="/about">About Us</Link>
           <Link className={item} href="/bag">Shopping Bag</Link>
-          {["About Us", "Beauty Journal", "Contact Us"].map(label => <button key={label} type="button" disabled aria-describedby="footer-unavailable" className={item + " cursor-not-allowed disabled:opacity-50"}>{label}</button>)}
+          {["Beauty Journal", "Contact Us"].map(label => <button key={label} type="button" disabled aria-describedby="footer-unavailable" className={item + " cursor-not-allowed disabled:opacity-50"}>{label}</button>)}
         </div>
         <div>
           <h2 className={heading}>CUSTOMER CARE</h2>

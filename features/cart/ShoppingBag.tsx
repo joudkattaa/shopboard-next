@@ -25,8 +25,8 @@ export default function ShoppingBag() {
         <div><span>Demo shipping</span><span>{totals.shipping ? formatMoney(totals.shipping) : "FREE"}</span></div>
         <div className="border-t border-border pt-4 font-semibold"><span>Total</span><span>{formatMoney(totals.total)}</span></div>
       </div>
-      <button type="button" disabled aria-describedby="checkout-demo" className="min-h-11 w-full rounded-lg bg-primary px-5 py-3 text-xs font-semibold text-primary-foreground opacity-50">DEMO CHECKOUT</button>
-      <p id="checkout-demo" className="mt-2.5 text-center text-[10px] text-muted-foreground">Checkout is not available in this migration stage. No payment, real order or shipping request occurs.</p>
+      <Link href="/checkout" aria-describedby="checkout-demo" className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-primary px-5 py-3 text-xs font-semibold text-primary-foreground">DEMO CHECKOUT</Link>
+      <p id="checkout-demo" className="mt-2.5 text-center text-[10px] text-muted-foreground">Demo only. No real payment, real order or shipping request occurs.</p>
       <Link href="/products" className="mt-4 inline-flex min-h-11 items-center text-xs text-[var(--rose-dark)] underline underline-offset-4">Continue shopping</Link>
     </>}
   </div>;

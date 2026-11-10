@@ -37,9 +37,9 @@ export default function HeaderNavigation({ logo, actions }: { logo: ReactNode; a
       <nav ref={nav} id="main-nav" aria-label="Main navigation" className={(open ? "flex " : "hidden ") + "order-4 col-span-full w-full min-w-0 flex-col min-[480px]:basis-full min-[1200px]:order-1 min-[1200px]:ml-auto min-[1200px]:flex min-[1200px]:w-auto min-[1200px]:basis-auto min-[1200px]:flex-row min-[1200px]:gap-2.5"}>
         {items.map((label, index) => {
           const className = "flex min-h-11 items-center bg-transparent px-3 py-3 text-left text-xs font-semibold leading-[1.2] tracking-[0.15px] min-[1200px]:whitespace-nowrap min-[1200px]:px-0 min-[1200px]:text-[10px]";
-          if (index > 5) return <button key={label} type="button" disabled title="Available in a later migration stage" aria-describedby="header-unavailable" className={className + " cursor-not-allowed disabled:opacity-50"}>{label}</button>;
-          const active = index === 0 ? pathname === "/" : pathname.startsWith("/products") && !filters.featured && (index === 1 ? filters.category === "All" : filters.category === categories[index]);
-          return <Link key={label} href={index === 0 ? "/" : "/products"} onClick={() => { if (index < 2) reset(); else if (categories[index]) selectCategory(categories[index]); closeMenu(); }} aria-current={active ? "page" : undefined} className={className + " hover:text-[var(--rose-dark)] active:opacity-80 " + (active ? "text-[var(--rose-dark)] dark:text-primary" : "")}>{label}</Link>;
+          if (index > 6) return <button key={label} type="button" disabled title="Available in a later migration stage" aria-describedby="header-unavailable" className={className + " cursor-not-allowed disabled:opacity-50"}>{label}</button>;
+          const active = index === 0 ? pathname === "/" : index === 6 ? pathname === "/about" : pathname.startsWith("/products") && !filters.featured && (index === 1 ? filters.category === "All" : filters.category === categories[index]);
+          return <Link key={label} href={index === 0 ? "/" : index === 6 ? "/about" : "/products"} onClick={() => { if (index < 2) reset(); else if (categories[index]) selectCategory(categories[index]); closeMenu(); }} aria-current={active ? "page" : undefined} className={className + " hover:text-[var(--rose-dark)] active:opacity-80 " + (active ? "text-[var(--rose-dark)] dark:text-primary" : "")}>{label}</Link>;
         })}
       </nav>
       {actions}

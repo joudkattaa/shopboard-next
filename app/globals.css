@@ -102,6 +102,9 @@
   --discovery-control-border: #e6bfce;
   --discovery-control-bg: #fff1f6;
   --discovery-control-hover: #f5dfe9;
+  /* Original About editorial background. */
+  --about-gradient-start: #fbeaf0;
+  --about-gradient-end: #f0e1e8;
   --rose: #a95570;
   --rose-dark: #88485f;
   --pink: #fff1f5;

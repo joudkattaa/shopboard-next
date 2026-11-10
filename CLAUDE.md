@@ -7,7 +7,7 @@
 - Preserve visible keyboard focus: 2px semantic ring with 4px offset. Label inputs, communicate errors with text, respect reduced motion, and aim for 44px touch targets. Check contrast in both themes; decorative palette and chart aliases are not automatically suitable for body text.
 - Use mobile-first responsive layouts with wrapping and no horizontal overflow. Original gutters: 16px, 24px at 480px, 40px at 900px, plus safe-area insets.
 - Source radii are component-specific. Named xs/sm/md/lg/xl/2xl/3xl/4xl map to 2/3/5/8/10/16/20/32px. Exact uniform source values use rounded-roseveil-*; petal/editorial tokens preserve original asymmetric shapes. Preserve other source corner combinations when their components are migrated.
-- Dark mode uses html[data-theme="dark"] and dark: utilities, never a .dark class. Server markup defaults explicitly to light. A future provider must synchronize saved/system preference safely; do not read browser storage during render or suppress hydration warnings.
+- Dark mode uses html[data-theme="dark"] and dark: utilities, never a .dark class. Server markup defaults explicitly to light. The static pre-paint theme script applies roseveil-theme or the initial system preference. Only the root html suppresses the intentional theme-attribute difference; do not suppress warnings elsewhere or read storage during component render.
 - This phase provides foundations only. The starter page retains explicit demo colors; page styling and product features require their own approved phase.
 
 ## Reusable UI kit
@@ -26,4 +26,4 @@
 
 - `DiscoveryProvider` owns the single shared search/category/sort/featured state. Header navigation, header search, and `ProductDiscovery` consume it. Use `ShopLink` for an unfiltered Shop entry; preserve existing filters for Continue shopping. Discovery stays in memory across client navigation, matching the source; it is not persisted or encoded into URLs.
 - `BagProvider` and `createBagStore` own bag state. Do not create parallel cart state. Reuse pure `normalizeCart`/`cartTotals` and `findProducts`. Catalog data comes from server readers and is passed as serializable props; do not import the server catalog into client code or add another fetch transport.
-- Bag storage uses `roseveil-shopping-bag-v1`, with `lumiere-shopping-bag-v1` read fallback. Persist IDs/quantities and the canonical promo only, never prices. Keep SSR snapshots empty and load storage after hydration; never save before hydration. Checkout, account and theme switching remain unavailable.
+- Bag storage uses `roseveil-shopping-bag-v1`, with `lumiere-shopping-bag-v1` read fallback. Persist IDs/quantities and the canonical promo only, never prices. Keep SSR snapshots empty and load storage after hydration; never save before hydration. Checkout is demo-only; account remains unavailable because the source has no account flow. ThemeToggle owns roseveil-theme persistence; never add a competing theme provider.

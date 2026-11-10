@@ -10,7 +10,7 @@ export default function SiteHeader() {
     <header className="border-b border-border bg-background dark:bg-card">
       <HeaderNavigation logo={<BrandLogo />} actions={<HeaderActions />} />
       <HeaderSearchPanel />
-      <p id="header-unavailable" className="sr-only">About Us, Blog, Contact, theme switching and account are unavailable during this migration stage.</p>
+      <p id="header-unavailable" className="sr-only">Blog, Contact and account are unavailable during this migration stage.</p>
     </header>
   </>;
 }
