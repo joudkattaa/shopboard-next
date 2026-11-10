@@ -87,6 +87,12 @@
   --hero-ivory: #f5ece4;
   --hero-layer-shadow: #72596030;
   --hero-layer-shadow-blur: #72596026;
+  /* Original product presentation decoration (layout.css). */
+  --product-card-border: #efdee5;
+  --product-image-surface: #f0e5e2;
+  --product-detail-gradient-end: #efe4dc;
+  --product-card-shadow: 0 1px 3px #36242d08, 0 8px 24px #36242d06;
+  --product-card-hover-shadow: 0 4px 8px #36242d0a, 0 12px 28px #36242d14;
   --rose: #a95570;
   --rose-dark: #88485f;
   --pink: #fff1f5;
