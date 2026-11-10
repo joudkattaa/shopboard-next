@@ -58,3 +58,41 @@ test('card/detail add actions update the header count, bag quantities, removal a
  row=find(Bag(),e=>e.type===Row);find(Row(row.props),e=>e.props?.['aria-label']==='Remove Velvet Body Cream').props.onClick();assert.equal(store.getSnapshot().items.length,0);
  assert.equal(find(Actions(),e=>e.props?.href==='/bag').props['aria-label'],'Open shopping bag, 0 items');assert(renderToStaticMarkup(React.createElement(Bag)).includes('Your shopping bag is empty.'));
 });
+
+test('Home and Shop keep independent filters and Home category navigation stays local',()=>{
+ let slots=[],cursor=0,context,route='/products';
+ const react={...React,useState:initial=>{const i=cursor++;if(!(i in slots))slots[i]=typeof initial==='function'?initial():initial;return [slots[i],value=>{slots[i]=typeof value==='function'?value(slots[i]):value}]},useContext:()=>context};
+ const local=loader({react,'next/navigation':{usePathname:()=>route}});const {DiscoveryProvider,useDiscovery}=local('features/catalog/DiscoveryProvider.tsx');const refresh=()=>{cursor=0;context=DiscoveryProvider({children:null}).props.value};refresh();useDiscovery().setFilters({query:'serum',category:'All',sort:'price-asc',featured:false});refresh();route='/';assert.equal(useDiscovery().filters.featured,true);
+ let focused=0;const navLoad=loader({react:{...React,useState:()=>[false,()=>{}],useRef:()=>({current:null}),useEffect(){}},'next/navigation':{usePathname:()=>route},'@/features/catalog/DiscoveryProvider':{useDiscovery,focusCollection:()=>{focused++}}});const Nav=navLoad('components/layout/HeaderNavigation.tsx').default;
+ const category=find(Nav({logo:null,actions:null}),e=>e.props?.children==='SKIN CARE');assert.equal(category.type,'button');category.props.onClick();refresh();assert.equal(useDiscovery().filters.category,'Skin Care');assert.equal(focused,1);assert.equal(route,'/');
+ route='/products';assert.equal(useDiscovery().filters.query,'serum');assert.equal(useDiscovery().filters.sort,'price-asc');assert.equal(useDiscovery().filters.category,'All');
+});
+
+test('catalog error/empty/loading feedback differs from no-match and wires retry',()=>{
+ let phase='error',retries=0;const {products}=loader()('features/catalog/catalog.ts');
+ const local=loader({react:{...React,useRef:()=>({current:null})},'@/features/catalog/DiscoveryProvider':{useDiscovery:()=>({filters:{query:'',category:'All',sort:'default',featured:false},setFilters(){},selectCategory(){},reset(){}})},'@/features/cart/BagProvider':{useBag:()=>({products:phase==='ready'?products:[],catalogPhase:phase,retryCatalog:()=>{retries++},ready:true,store:{add(){}}})}});const Discovery=local('features/catalog/ProductDiscovery.tsx').default;
+ for(const [value,text]of [['error','Unable to load products'],['empty','The collection is taking a little pause.'],['loading','Loading ROSEVEIL products']]){phase=value;const html=renderToStaticMarkup(React.createElement(Discovery,{products}));assert(html.includes(text));assert(!html.includes('A little change of search?'));assert(!html.includes('<article '));}
+ phase='error';find(Discovery({products}),e=>e.props?.children==='Try Again').props.onClick();assert.equal(retries,1);
+});
+
+test('bag modal is controlled by the existing provider with explicit title, description and focus restoration',()=>{
+ const {products}=loader()('features/catalog/catalog.ts');let slots=[],cursor=0,context;const target={};
+ const react={...React,useState:initial=>{const i=cursor++;if(!(i in slots))slots[i]=typeof initial==='function'?initial():initial;return [slots[i],value=>{slots[i]=typeof value==='function'?value(slots[i]):value}]},useContext:()=>context,useSyncExternalStore:(_s,get)=>get(),useEffect(){}};
+ const local=loader({react,'next/navigation':{usePathname:()=>'/products'}});const {BagProvider}=local('features/cart/BagProvider.tsx');function render(){cursor=0;const tree=BagProvider({products,children:null});context=tree.props.value;return tree.props.children;}
+ render();context.store.hydrate();context.store.openModal();const root=render();assert.equal(root.props.open,true);const modal=find(root,e=>e.type?.name==='BagModal').type();assert.equal(modal.props.id,'shopping-bag-dialog');const old=global.document;global.document={getElementById:id=>id==='cart-button'?target:null};try{assert.equal(modal.props.finalFocus(),target)}finally{global.document=old}
+ const header=modal.props.children[0];assert.equal(header.props.children[0].props.children,'Your Shopping Bag');assert(header.props.children[1].props.children.includes('Review your items'));root.props.onOpenChange(false);assert.equal(context.store.getSnapshot().modalOpen,false);
+});
+
+test('unavailable bag prices retain lines but block checkout until catalog recovers',()=>{
+ const base=loader();const {products}=base('features/catalog/catalog.ts');const {createBagStore}=base('features/cart/bag.store.ts');const {cartTotals}=base('features/cart/cart.logic.ts');const store=createBagStore(products);store.hydrate();store.add('body-cream');let available=false;
+ const local=loader({react:{...React,useRef:()=>({current:null})},'@/features/cart/BagProvider':{useBag:()=>({...store.getSnapshot(),products:available?products:[],store,pricesAvailable:available,catalogPhase:available?'ready':'error',retryCatalog(){available=true},totals:cartTotals(store.getSnapshot().items,'',products)})}});const Bag=local('features/cart/ShoppingBag.tsx').default;assert(!find(Bag(),e=>e.props?.href==='/checkout'));assert(renderToStaticMarkup(React.createElement(Bag)).includes('Product prices are unavailable. Your saved bag is safe.'));find(Bag(),e=>e.props?.children==='Try again').props.onClick();assert(find(Bag(),e=>e.props?.href==='/checkout'));assert.equal(store.getSnapshot().items.length,1);
+});
+
+test('detail price stays unavailable until a successful catalog retry',()=>{
+ const {products}=loader()('features/catalog/catalog.ts');let phase='error';
+ const local=loader({'@/features/cart/BagProvider':{useBag:()=>({products,catalogPhase:phase,retryCatalog(){phase='ready'}})}});
+ const Price=local('features/catalog/ProductPrice.tsx').default;
+ assert(renderToStaticMarkup(React.createElement(Price,{id:'body-cream'})).includes('Price unavailable'));
+ find(Price({id:'body-cream'}),e=>e.type==='button').props.onClick();
+ const html=renderToStaticMarkup(React.createElement(Price,{id:'body-cream'}));assert(!html.includes('Price unavailable'));assert(html.includes('USD'));
+});

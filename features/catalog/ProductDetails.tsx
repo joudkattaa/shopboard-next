@@ -2,7 +2,7 @@ import Link from "next/link";
 import AddToBagButton from "@/features/cart/AddToBagButton";
 import type { Product } from "@/features/catalog/products.types";
 import ProductImage from "@/features/catalog/ProductImage";
-import { formatMoney } from "@/lib/format-money";
+import ProductPrice from "@/features/catalog/ProductPrice";
 
 export default function ProductDetails({ product }: { product: Readonly<Product> }) {
   return (
@@ -13,16 +13,17 @@ export default function ProductDetails({ product }: { product: Readonly<Product>
       </figure>
       <div className="min-w-0">
         <p className="mb-3.5 text-[10px] uppercase tracking-[1.5px] text-[var(--rose-dark)] dark:text-primary">{product.category}</p>
-        <h1 className="mb-5 text-4xl">{product.name}</h1>
-        <p className="font-heading text-4xl font-medium leading-[1.2] tabular-nums">{formatMoney(product.price)} <span className="ms-[5px] font-sans text-[10px] font-normal leading-[1.5] tracking-[1px] text-muted-foreground">USD</span></p>
+        <ProductPrice id={product.id} />
         <p className="my-5 text-sm leading-[1.9] text-muted-foreground">{product.description}</p>
         <dl className="my-6 grid grid-cols-2 gap-3 border-y border-border py-4">
           <div><dt className="mb-[5px] text-[10px] uppercase tracking-[1px] text-muted-foreground">Size</dt><dd className="text-[13px]">{product.size}</dd></div>
           <div><dt className="mb-[5px] text-[10px] uppercase tracking-[1px] text-muted-foreground">Collection</dt><dd className="text-[13px]">{product.category}</dd></div>
         </dl>
         <AddToBagButton id={product.id} name={product.name} detail />
-        <Link href="/bag" className="inline-flex min-h-11 items-center text-xs underline underline-offset-4">View shopping bag ?</Link>
-        <p className="text-sm text-muted-foreground">Illustrative product. Images and sizes are for this concept store. No real purchase or product claims. No payment, real order or shipping request occurs.</p>
+        <Link href="/bag" className="inline-flex min-h-11 items-center text-xs underline underline-offset-4">View shopping bag &rarr;</Link>
+        <p className="my-5 bg-secondary p-3 text-[13px] leading-[1.7]">A little treat: use <strong>GLOW20</strong> in your bag for 20% off merchandise.</p>
+        <details className="border-t border-border py-3"><summary className="min-h-11 cursor-pointer text-xs font-medium">Delivery &amp; demo checkout</summary><p className="text-xs leading-[1.8] text-muted-foreground">Demo shipping is $5.95. It is free when your merchandise total after discounts is over $50. Review your bag before continuing to demo checkout.</p></details>
+        <details className="border-y border-border py-3"><summary className="min-h-11 cursor-pointer text-xs font-medium">About this concept</summary><p className="text-xs leading-[1.8] text-muted-foreground">Illustrative product. Images and sizes are for this concept store. No real purchase or product claims. No payment, real order or shipping request occurs.</p></details>
       </div>
     </article>
   );

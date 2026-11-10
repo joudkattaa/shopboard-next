@@ -1,5 +1,5 @@
 import Link from "next/link";
-import ShopLink from "@/features/catalog/ShopLink";
+import ShopLink, { HomeLink } from "@/features/catalog/ShopLink";
 import BrandIcon from "@/components/layout/BrandIcon";
 import BrandLogo from "@/components/layout/BrandLogo";
 import NewsletterForm from "@/components/layout/NewsletterForm";
@@ -20,7 +20,7 @@ export default function SiteFooter() {
         </div>
         <div>
           <h2 className={heading}>EXPLORE ROSEVEIL</h2>
-          <Link className={item} href="/">Home</Link>
+          <HomeLink className={item}>Home</HomeLink>
           <ShopLink className={item}>Shop</ShopLink>
           <Link className={item} href="/about">About Us</Link>
           <Link className={item} href="/bag">Shopping Bag</Link>

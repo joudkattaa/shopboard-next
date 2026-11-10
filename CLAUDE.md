@@ -24,6 +24,10 @@
 
 ## Discovery and shopping bag ownership
 
-- `DiscoveryProvider` owns the single shared search/category/sort/featured state. Header navigation, header search, and `ProductDiscovery` consume it. Use `ShopLink` for an unfiltered Shop entry; preserve existing filters for Continue shopping. Discovery stays in memory across client navigation, matching the source; it is not persisted or encoded into URLs.
+- `DiscoveryProvider` owns separate Home and Shop search/category/sort/featured scopes. Header navigation, header search, and `ProductDiscovery` consume it. Use `HomeLink` for a reset Home entry and `ShopLink` for an unfiltered Shop entry; preserve existing filters for Continue shopping. Discovery stays in memory across client navigation, matching the source; it is not persisted or encoded into URLs.
 - `BagProvider` and `createBagStore` own bag state. Do not create parallel cart state. Reuse pure `normalizeCart`/`cartTotals` and `findProducts`. Catalog data comes from server readers and is passed as serializable props; do not import the server catalog into client code or add another fetch transport.
 - Bag storage uses `roseveil-shopping-bag-v1`, with `lumiere-shopping-bag-v1` read fallback. Persist IDs/quantities and the canonical promo only, never prices. Keep SSR snapshots empty and load storage after hydration; never save before hydration. Checkout is demo-only; account remains unavailable because the source has no account flow. ThemeToggle owns roseveil-theme persistence; never add a competing theme provider.
+
+- Header bag opens the existing Base UI dialog except on /bag (focus contents) and /checkout (navigate to /bag). Reuse ShoppingBag and the same store; retain the explicit header trigger focus restoration.
+- Recover catalog failures with readCatalog and the shared refreshCatalog server action. Keep direct server readers; do not fetch the app API from Server Components. Never present unavailable prices as zero or clear saved items on a temporary catalog failure.
+- Run the existing Node test suites; tests/http-parity.test.cjs starts the production server and requires a fresh production build. Component harnesses do not replace real browser keyboard, focus, hydration, or responsive testing.

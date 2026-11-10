@@ -22,11 +22,11 @@ export default function Checkout() {
     if (first) { form.current?.querySelector<HTMLElement>(`[name="${first.key}"]`)?.focus(); return; }
     // Read the latest store at submission, never trust a stale displayed total.
     const current = bag.store.getSnapshot();
-    const order = checkoutOrder({ ...current, products: bag.products });
+    const order = checkoutOrder({ ...current, ready: current.ready && (bag.pricesAvailable ?? true), products: bag.products });
     if (!order) return;
     form.current?.reset(); setConfirmed(order); bag.store.clear();
   }
-  const order = checkoutOrder(bag);
+  const order = checkoutOrder({ ...bag, ready: bag.ready && (bag.pricesAvailable ?? true) });
   if (!bag.ready) return <p role="status">Loading your shopping bag…</p>;
   if (confirmed) return <div><h2 ref={heading} tabIndex={-1} className="text-[26px] font-medium leading-[1.2]">Demo order confirmed</h2><p className="mb-5 mt-3 text-[13px] text-muted-foreground">This was a demo only. No payment was collected, no real order was placed and no shipping request was made. Your customer details were not saved or sent. Your shopping bag is now empty.</p><OrderSummary order={confirmed} /><Link href="/products" className="inline-flex min-h-11 items-center rounded-lg bg-primary px-5 py-3 text-xs font-semibold text-primary-foreground">Continue shopping</Link></div>;
   if (!bag.items.length) return <div><p>Your shopping bag is empty.</p><Link href="/products" className="inline-flex min-h-11 items-center text-primary underline">Explore the collection</Link></div>;

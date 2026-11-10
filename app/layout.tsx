@@ -6,7 +6,7 @@ import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import { BagProvider } from "@/features/cart/BagProvider";
 import { DiscoveryProvider } from "@/features/catalog/DiscoveryProvider";
-import { readProducts } from "@/features/catalog/products.server";
+import { readCatalog } from "@/features/catalog/products.server";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const products = await readProducts();
+  const catalog = await readCatalog();
   return (
     <html
       lang="en"
@@ -39,9 +39,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <head><script dangerouslySetInnerHTML={{ __html: themeBootstrap }} /></head>
       <body className="min-h-full flex flex-col">
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-card focus:p-4">Skip to content</a>
-        <BagProvider products={products}><DiscoveryProvider>
+        <BagProvider products={catalog.products} initialPhase={catalog.phase}><DiscoveryProvider>
         <SiteHeader />
-        <main id="main" tabIndex={-1} className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6 has-[[data-home-hero]]:max-w-none has-[[data-home-hero]]:p-0 has-[[data-product-listing]]:max-w-none has-[[data-product-listing]]:p-0 has-[[data-about-page]]:max-w-none has-[[data-about-page]]:p-0">{children}</main>
+        <main id="main" tabIndex={-1} className="mx-auto w-[calc(100%-var(--inset-start)-var(--inset-end))] max-w-[1250px] flex-1 p-0 has-[[data-home-hero]]:w-full has-[[data-home-hero]]:max-w-none has-[[data-home-hero]]:p-0 has-[[data-product-listing]]:w-full has-[[data-product-listing]]:max-w-none has-[[data-product-listing]]:p-0 has-[[data-about-page]]:w-full has-[[data-about-page]]:max-w-none has-[[data-about-page]]:p-0">{children}</main>
         <SiteFooter />
         </DiscoveryProvider></BagProvider>
       </body>

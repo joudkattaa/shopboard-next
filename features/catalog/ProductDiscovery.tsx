@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import { useBag } from "@/features/cart/BagProvider";
 import { useRef } from "react";
 import type { Product } from "@/features/catalog/products.types";
 import { findProducts } from "@/features/catalog/products.logic";
@@ -9,8 +10,9 @@ import ProductGrid from "@/features/catalog/ProductGrid";
 
 export default function ProductDiscovery({ products }: { products: readonly Product[] }) {
   const { filters, setFilters, selectCategory, reset } = useDiscovery();
+  const { products: liveProducts = products, catalogPhase = "ready", retryCatalog } = useBag();
   const heading = useRef<HTMLHeadingElement>(null);
-  const matches = findProducts(filters.category, filters.query, filters.featured, filters.sort, products);
+  const matches = findProducts(filters.category, filters.query, filters.featured, filters.sort, liveProducts);
   const filtered = filters.category !== "All" || Boolean(filters.query) || filters.sort !== "default";
   function clear() { reset(); heading.current?.focus({ preventScroll: true }); }
   return <section id="products" aria-labelledby="products-title" className="py-10 min-[900px]:py-14">
@@ -24,8 +26,11 @@ export default function ProductDiscovery({ products }: { products: readonly Prod
       </nav><CatalogControls filters={filters} onChange={setFilters} />
     </div>
     {filtered && <div className="flex flex-wrap items-center justify-between gap-3 pb-3 text-xs text-muted-foreground"><p>{[filters.category !== "All" ? filters.category : "", filters.query ? "Search: " + filters.query : ""].filter(Boolean).join(" · ")}</p><button type="button" onClick={clear} className="min-h-11 text-[var(--rose-dark)]">Clear Filters ×</button></div>}
-    <p role="status" aria-atomic="true" className="mb-4 text-xs text-muted-foreground">{matches.length} {matches.length === 1 ? "product" : "products"} shown{filters.category !== "All" ? " in " + filters.category : ""}.</p>
-    {!matches.length && <div className="my-6 rounded-lg border border-border bg-secondary p-6 text-center"><h3 className="text-2xl">A little change of search?</h3><p className="my-4 text-sm text-muted-foreground">We couldn’t find a match. Try “serum”, “rose”, or explore the full collection.</p><button type="button" onClick={clear} className="min-h-11 rounded-lg bg-primary px-5 text-primary-foreground">EXPLORE ALL PRODUCTS</button></div>}
-    <ProductGrid products={matches} />
+    <p role="status" aria-atomic="true" className="mb-4 text-xs text-muted-foreground">{catalogPhase === "ready" ? matches.length + (matches.length === 1 ? " product" : " products") + " shown" : ""}{filters.category !== "All" ? " in " + filters.category : ""}.</p>
+    {catalogPhase === "loading" && <p role="status">Loading ROSEVEIL products?</p>}
+    {catalogPhase === "error" && <div role="alert"><p>Unable to load products. Please try again.</p><button type="button" onClick={retryCatalog} className="my-4 min-h-11 rounded-lg bg-primary px-5 text-primary-foreground">Try Again</button></div>}
+    {catalogPhase === "empty" && <div className="my-6 rounded-lg border border-border bg-secondary p-6"><h3 className="text-2xl">The collection is taking a little pause.</h3><p>There are no products to browse right now. Your saved shopping bag is safe. Please check again later.</p><button type="button" onClick={retryCatalog} className="mt-4 min-h-11 rounded-lg bg-primary px-5 text-primary-foreground">Check Again</button></div>}
+    {catalogPhase === "ready" && !matches.length && <div className="my-6 rounded-lg border border-border bg-secondary p-6 text-center"><h3 className="text-2xl">A little change of search?</h3><p className="my-4 text-sm text-muted-foreground">We couldn’t find a match. Try “serum”, “rose”, or explore the full collection.</p><button type="button" onClick={clear} className="min-h-11 rounded-lg bg-primary px-5 text-primary-foreground">EXPLORE ALL PRODUCTS</button></div>}
+    <div aria-busy={catalogPhase === "loading"}><ProductGrid products={catalogPhase === "ready" ? matches : []} /></div>
   </section>;
 }

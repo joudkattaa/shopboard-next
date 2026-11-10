@@ -105,6 +105,11 @@
   /* Original About editorial background. */
   --about-gradient-start: #fbeaf0;
   --about-gradient-end: #f0e1e8;
+  /* Original Home benefits and ribbon. */
+  --benefits-surface: #fff2f6;
+  --ribbon-start: #fceaf0;
+  --ribbon-end: #f1e2e9;
+  --ribbon-border: #edd8e0;
   --rose: #a95570;
   --rose-dark: #88485f;
   --pink: #fff1f5;

@@ -95,3 +95,14 @@ test('add/remove/change/clear enforce limits, preserve previous snapshots, and n
 test('legacy storage is migrated on the next save without deleting the old key',()=>{
  const legacy=JSON.stringify({items:[{id:'body-cream',quantity:2}],promoCode:'GLOW20'});const disk=storage({[LEGACY_BAG_KEY]:legacy});const store=createBagStore(products);store.hydrate(disk);assert.equal(disk.getItem(BAG_KEY),null);store.add('shampoo');assert.equal(disk.getItem(LEGACY_BAG_KEY),legacy);const restored=createBagStore(products);restored.hydrate(disk);assert.deepEqual(restored.getSnapshot().items,store.getSnapshot().items);assert.equal(restored.getSnapshot().promoCode,'GLOW20');
 });
+
+test('catalog reader failures and empty responses are recoverable without throwing through the layout',async()=>{
+ const {catalogResult}=load('features/catalog/catalog-result.ts');let fail=true;const reader=async()=>{if(fail)throw Error('temporary');return products};
+ assert.deepEqual(await catalogResult(reader),{phase:'error',products:[]});fail=false;assert.equal((await catalogResult(reader)).phase,'ready');assert.deepEqual(await catalogResult(async()=>[]),{phase:'empty',products:[]});
+});
+
+test('unavailable catalog preserves saved bag until recovery and repeat messages get revisions',()=>{
+ const disk=storage({[BAG_KEY]:JSON.stringify({items:[{id:'body-cream',quantity:2},{id:'stale',quantity:1}],promoCode:'GLOW20'})});const store=createBagStore([]);store.hydrate(disk);assert.equal(store.getSnapshot().items.length,2);assert.equal(store.add('body-cream'),false);store.updateCatalog(products);assert.deepEqual(store.getSnapshot().items,[{id:'body-cream',quantity:2}]);
+ store.add('body-cream');const first=store.getSnapshot();store.add('body-cream');assert.equal(store.getSnapshot().message,first.message);assert(store.getSnapshot().revision>first.revision);
+ store.openModal();assert.equal(store.getSnapshot().modalOpen,true);store.closeModal();assert.equal(store.getSnapshot().modalOpen,false);assert.equal(store.getSnapshot().message,'');
+});

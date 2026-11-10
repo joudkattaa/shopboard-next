@@ -1,4 +1,5 @@
 import "server-only";
+import { catalogResult } from "@/features/catalog/catalog-result";
 import { cache } from "react";
 import { products } from "@/features/catalog/catalog";
 import { productById } from "@/features/catalog/products.logic";
@@ -16,3 +17,5 @@ export const readProduct = cache(async (id: string) => {
   if (!isProductId(id)) return undefined;
   return productById(id, await readProducts());
 });
+
+export const readCatalog = cache(() => catalogResult(readProducts));
