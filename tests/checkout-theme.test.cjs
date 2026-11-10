@@ -44,3 +44,24 @@ test('About disclosure retains controls, original story and accessible expanded 
  let value=false;const local=loader({react:{...React,useState:()=>[value,next=>{value=next}]}});const About=local('components/editorial/AboutSection.tsx').default;
  const button=find(About(),el=>el.type==='button');assert.equal(button.props['aria-expanded'],false);button.props.onClick();assert.equal(find(About(),el=>el.props?.id==='about-story').props.hidden,false);assert.equal(find(About(),el=>el.type==='button').props['aria-expanded'],true);
 });
+
+test('checkout revalidates only the edited field after a failed submit',()=>{
+ const store=createBagStore(products);store.hydrate();store.add('body-cream');let slots=[],cursor=0,refs=[],refCursor=0;
+ const react={...React,useState:initial=>{const i=cursor++;if(!(i in slots))slots[i]=initial;return [slots[i],value=>{slots[i]=typeof value==='function'?value(slots[i]):value}]},useRef:initial=>{const i=refCursor++;return refs[i]??(refs[i]={current:initial})},useEffect(){}};
+ const local=loader({react,'@/features/cart/BagProvider':{useBag:()=>({...store.getSnapshot(),store,products})}});const Checkout=local('features/checkout/Checkout.tsx').default;const render=()=>{cursor=0;refCursor=0;return Checkout()};
+ const Original=global.FormData;global.FormData=class{constructor(value){this.value=value}get(key){return this.value[key]}};
+ try{let form=find(render(),e=>e.type==='form');form.props.onChange({currentTarget:{},target:{name:'email'}});assert.deepEqual(slots[1],{});
+ form.props.onSubmit({preventDefault(){},currentTarget:{}});assert.equal(Object.keys(slots[1]).length,4);
+ form=find(render(),e=>e.type==='form');form.props.onChange({currentTarget:{email:'sample@example.com'},target:{name:'email'}});assert.equal(slots[1].email,undefined);assert(slots[1].fullName);
+ find(render(),e=>e.type==='form').props.onChange({currentTarget:{email:'bad'},target:{name:'email'}});assert(slots[1].email);assert.equal(store.getSnapshot().items.length,1);
+ }finally{global.FormData=Original}
+});
+
+test('scroll reveals once, skips focused content, cancels on reduced motion and cleans up',()=>{
+ const {observeSections}=load('components/motion/ScrollReveals.tsx');const keys=['IntersectionObserver','MutationObserver','HTMLElement','window','document'];const saved=Object.fromEntries(keys.map(key=>[key,global[key]]));let notify,scan,change,disconnects=0,cancels=0,plays=0;const observed=[];let options;
+ class Element{contains(active){return active===this}animate(frames,timing){plays++;assert.deepEqual(frames,[{opacity:.85,translate:'0 8px'},{opacity:1,translate:'0 0'}]);assert.deepEqual(timing,{duration:500,easing:'ease-out'});return{finished:new Promise(()=>{}),cancel(){cancels++}}}}
+ const first=new Element(),focused=new Element(),later=new Element();let targets=[first,focused];const preference={matches:false,addEventListener(_name,fn){change=fn},removeEventListener(){}};
+ global.HTMLElement=Element;global.document={activeElement:focused};global.window={matchMedia:()=>preference};global.IntersectionObserver=class{constructor(callback,config){notify=callback;options=config}observe(target){observed.push(target)}unobserve(){}disconnect(){disconnects++}};global.MutationObserver=class{constructor(callback){scan=callback}observe(){}disconnect(){disconnects++}};
+ const root=new Element();root.querySelectorAll=selector=>{assert.equal(selector,'section:not([data-home-hero]), [data-signature-ribbon]');return targets};root.contains=()=>true;
+ try{const cleanup=observeSections(root);assert.equal(options.threshold,.08);assert.equal(observed.length,2);const entries=[first,focused].map(target=>({target,isIntersecting:true}));notify(entries);notify(entries);assert.equal(plays,1);targets.push(later);scan();assert(observed.includes(later));preference.matches=true;change();assert.equal(cancels,1);notify([{target:later,isIntersecting:true}]);assert.equal(plays,1);preference.matches=false;change();notify([{target:later,isIntersecting:true}]);assert.equal(plays,2);cleanup();assert.equal(cancels,2);assert(disconnects>=4);global.IntersectionObserver=undefined;assert.equal(observeSections(root),undefined)}finally{for(const key of keys)global[key]=saved[key]}
+});

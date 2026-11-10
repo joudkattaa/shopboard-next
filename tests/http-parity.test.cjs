@@ -23,3 +23,10 @@ test('Home composition and source-compatible routes render through the productio
  for(const route of ['/products/unknown-product','/missing-page','/api/products/unknown-product'])assert.equal((await fetch(base+route)).status,404);
  const r=await fetch(base+'/api/products');const json=await r.json();assert.equal(json.total,30);assert.equal(json.items[0].id,'body-cream');
 });
+
+test('original branded favicon and optimized responsive product images are served',async()=>{
+ const fs=require('node:fs');const icon=await fetch(base+'/roseveil-mark.svg');assert.equal(icon.status,200);assert.equal(await icon.text(),fs.readFileSync(path.resolve(__dirname,'../public/roseveil-mark.svg'),'utf8'));
+ const home=await(await fetch(base+'/')).text();assert(home.includes('href="/roseveil-mark.svg"'));assert(!home.includes('href="/favicon.ico'));
+ const listing=await(await fetch(base+'/products')).text();assert(listing.includes('srcSet="/_next/image'));assert(listing.includes('sizes="(min-width: 1330px)'));
+ const image=await fetch(base+'/_next/image?url=%2Froseveil%2Fbody-lotion.webp&w=640&q=75');assert.equal(image.status,200);assert(image.headers.get('content-type').startsWith('image/'));assert((await image.arrayBuffer()).byteLength>0);
+});

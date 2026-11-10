@@ -8,7 +8,6 @@
 - Use mobile-first responsive layouts with wrapping and no horizontal overflow. Original gutters: 16px, 24px at 480px, 40px at 900px, plus safe-area insets.
 - Source radii are component-specific. Named xs/sm/md/lg/xl/2xl/3xl/4xl map to 2/3/5/8/10/16/20/32px. Exact uniform source values use rounded-roseveil-*; petal/editorial tokens preserve original asymmetric shapes. Preserve other source corner combinations when their components are migrated.
 - Dark mode uses html[data-theme="dark"] and dark: utilities, never a .dark class. Server markup defaults explicitly to light. The static pre-paint theme script applies roseveil-theme or the initial system preference. Only the root html suppresses the intentional theme-attribute difference; do not suppress warnings elsewhere or read storage during component render.
-- This phase provides foundations only. The starter page retains explicit demo colors; page styling and product features require their own approved phase.
 
 ## Reusable UI kit
 
@@ -31,3 +30,5 @@
 - Header bag opens the existing Base UI dialog except on /bag (focus contents) and /checkout (navigate to /bag). Reuse ShoppingBag and the same store; retain the explicit header trigger focus restoration.
 - Recover catalog failures with readCatalog and the shared refreshCatalog server action. Keep direct server readers; do not fetch the app API from Server Components. Never present unavailable prices as zero or clear saved items on a temporary catalog failure.
 - Run the existing Node test suites; tests/http-parity.test.cjs starts the production server and requires a fresh production build. Component harnesses do not replace real browser keyboard, focus, hydration, or responsive testing.
+
+- ScrollReveals observes main sections once, excludes the separately animated Hero, and cancels motion when reduced-motion preferences change. Keep content visible without JavaScript; do not add competing reveal observers. Bag/clipboard notifications share the existing store revision and timer; increment bagFeedback only after a successful add.

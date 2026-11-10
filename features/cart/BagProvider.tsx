@@ -44,5 +44,5 @@ function BagModal() {
 function BagFeedback() {
   const { message, revision, modalOpen, store } = useBag();
   useEffect(() => { if (!message) return; const timer = setTimeout(() => store.clearMessage(), 3800); return () => clearTimeout(timer); }, [message, revision, store]);
-  return <p role="status" aria-atomic="true" className={message && !modalOpen ? "fixed bottom-4 left-1/2 z-50 w-max max-w-[calc(100%-32px)] -translate-x-1/2 rounded-md bg-foreground px-5 py-3 text-center text-sm text-background shadow-lg" : "sr-only"}>{!modalOpen && message && <span key={revision}>{message}</span>}</p>;
+  return <p role="status" aria-atomic="true" className={message && !modalOpen ? "fixed bottom-[calc(16px+env(safe-area-inset-bottom,0px))] left-1/2 z-50 w-max max-w-[calc(100%-32px)] -translate-x-1/2 rounded-md bg-deep-raisin px-5 py-3 text-center text-[13px] text-white shadow-[0_8px_30px_#36242d26] dark:bg-primary dark:text-background" : "sr-only"}>{!modalOpen && message && <span key={revision}>{message}</span>}</p>;
 }

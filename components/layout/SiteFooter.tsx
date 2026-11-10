@@ -16,7 +16,7 @@ export default function SiteFooter() {
         <div className="col-span-full min-[1000px]:col-span-1">
           <BrandLogo footer />
           <p className="text-xs leading-[1.7] text-muted-foreground dark:text-foreground">Your everyday moment of beauty.<br />Thoughtfully inspired by nature.</p>
-          <a href="#newsletter" className={item + " mt-3 text-[11px] text-[var(--rose-dark)] dark:text-primary"}>A little inspiration, in your inbox <span aria-hidden="true">?</span></a>
+          <a href="#newsletter" className={item + " mt-3 text-[11px] text-[var(--rose-dark)] dark:text-primary"}>A little inspiration, in your inbox <span aria-hidden="true">&#8599;</span></a>
         </div>
         <div>
           <h2 className={heading}>EXPLORE ROSEVEIL</h2>

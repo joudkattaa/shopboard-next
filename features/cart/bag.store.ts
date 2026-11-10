@@ -6,10 +6,10 @@ import { productById } from "@/features/catalog/products.logic";
 export const BAG_KEY = "roseveil-shopping-bag-v1";
 export const LEGACY_BAG_KEY = "lumiere-shopping-bag-v1";
 export type BagStorage = Pick<Storage, "getItem" | "setItem">;
-type Snapshot = { items: Cart; promoCode: string; ready: boolean; message: string; revision: number; modalOpen: boolean };
+type Snapshot = { items: Cart; promoCode: string; ready: boolean; message: string; revision: number; bagFeedback: number; modalOpen: boolean };
 
 export function createBagStore(catalog: readonly Product[]) {
-  const initial: Snapshot = { items: [], promoCode: "", ready: false, message: "", revision: 0, modalOpen: false };
+  const initial: Snapshot = { items: [], promoCode: "", ready: false, message: "", revision: 0, bagFeedback: 0, modalOpen: false };
   let snapshot = initial;
   let activeCatalog = catalog;
   let storage: BagStorage | undefined;
@@ -48,7 +48,7 @@ export function createBagStore(catalog: readonly Product[]) {
       const current = snapshot.items.find(item => item.id === id);
       if (current?.quantity === 99) { update({ message: "Maximum quantity is 99." }, false); return false; }
       const items = current ? snapshot.items.map(item => item.id === id ? { ...item, quantity: item.quantity + 1 } : item) : [...snapshot.items, { id, quantity: 1 }];
-      update({ items, message: product.name + " added to your shopping bag." });
+      update({ items, bagFeedback: snapshot.bagFeedback + 1, message: product.name + " added to your bag." });
       return true;
     },
     changeQuantity(id: string, delta: number) {
@@ -59,6 +59,7 @@ export function createBagStore(catalog: readonly Product[]) {
     remove(id: string) { if (snapshot.ready) update({ items: snapshot.items.filter(item => item.id !== id), message: "Item removed from your shopping bag." }); },
     clear() { if (snapshot.ready) update({ items: [], promoCode: "", message: "Your shopping bag is now empty." }); },
     setPromoCode(value: string) { if (snapshot.ready) update({ promoCode: value === "GLOW20" ? "GLOW20" : "", message: value === "GLOW20" ? "GLOW20 applied." : "Discount removed." }); },
+    notify(message: string) { update({ message }, false); },
     clearMessage() { update({ message: "" }, false); },
   };
 }

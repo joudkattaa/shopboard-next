@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DM_Sans, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import { themeBootstrap } from "@/features/theme/theme";
+import ScrollReveals from "@/components/motion/ScrollReveals";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import { BagProvider } from "@/features/cart/BagProvider";
@@ -23,6 +24,7 @@ const cormorantGaramond = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
+  icons: { icon: [{ url: "/roseveil-mark.svg", type: "image/svg+xml" }] },
   title: { default: "ROSEVEIL Cosmetics", template: "%s — ROSEVEIL Cosmetics" },
   description: "A little rose. A little ritual. Discover beauty essentials that make the everyday feel extraordinary.",
 };
@@ -40,6 +42,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-card focus:p-4">Skip to content</a>
         <BagProvider products={catalog.products} initialPhase={catalog.phase}><DiscoveryProvider>
+        <ScrollReveals />
         <SiteHeader />
         <main id="main" tabIndex={-1} className="mx-auto w-[calc(100%-var(--inset-start)-var(--inset-end))] max-w-[1250px] flex-1 p-0 has-[[data-home-hero]]:w-full has-[[data-home-hero]]:max-w-none has-[[data-home-hero]]:p-0 has-[[data-product-listing]]:w-full has-[[data-product-listing]]:max-w-none has-[[data-product-listing]]:p-0 has-[[data-about-page]]:w-full has-[[data-about-page]]:max-w-none has-[[data-about-page]]:p-0">{children}</main>
         <SiteFooter />
