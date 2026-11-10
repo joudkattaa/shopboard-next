@@ -83,6 +83,10 @@
   --footer-gradient-end: #f3e5ec;
   --footer-divider: #e2cbd5;
   --footer-placeholder: #80666d;
+  /* Original editorial hero surface and contact shadows. */
+  --hero-ivory: #f5ece4;
+  --hero-layer-shadow: #72596030;
+  --hero-layer-shadow-blur: #72596026;
   --rose: #a95570;
   --rose-dark: #88485f;
   --pink: #fff1f5;
@@ -215,4 +219,17 @@
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+/* Original hero timings are applied with motion-safe Tailwind utilities. */
+@keyframes roseveil-hero-in {
+  from { opacity: 0.9; translate: 0 6px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes roseveil-product-entrance {
+  from { opacity: 0; transform: translate3d(0, 30px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes roseveil-product-entrance-desktop {
+  from { opacity: 0; transform: translate3d(48px, 0, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
